@@ -43,6 +43,11 @@ mod tests {
         // Ignore the error if the file does not exist
         let _ = remove_file(&file_path);
         run(file_path.clone());
+
+        let content = std::fs::read(&file_path)
+            .unwrap();
+        assert_eq!(content, vec![0, 0, 0, 11]);
+
         // Clean up the test file
         remove_file(file_path).unwrap();
     }
