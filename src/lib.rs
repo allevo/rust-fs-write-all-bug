@@ -1,4 +1,4 @@
-use std::{io::Write, os::unix::fs::FileExt, path::PathBuf};
+use std::{io::{Seek, SeekFrom, Write}, os::unix::fs::FileExt, path::PathBuf};
 
 pub fn run(file_path: PathBuf) {
     let print_file = |p: &'static str| {
@@ -19,19 +19,22 @@ pub fn run(file_path: PathBuf) {
         .write_all_at(&buf, 0).unwrap();
     print_file("after first write");
 
+    page_file.flush().unwrap();
+    page_file
+        .sync_all().unwrap();
+
     let mut buf: [u8; 4] = [0; 4];
     page_file
         .read_exact_at(&mut buf, 0).unwrap();
     let n = u32::from_be_bytes(buf);
     print_file("after first read");
 
+    page_file.seek(SeekFrom::Start(0)).unwrap();
+
     let buf: [u8; 4] = (n + 1).to_be_bytes();
     page_file
         .write_all_at(&buf, 0).unwrap();
 
-    page_file.flush().unwrap();
-    page_file
-        .sync_all().unwrap();
 
     print_file("after second write");
 }
