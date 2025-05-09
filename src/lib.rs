@@ -8,7 +8,8 @@ pub fn run(file_path: PathBuf) {
 
     let mut page_file = std::fs::File::options()
         .create(true)
-        .append(true)
+        .write(true)
+        // .append(true)
         .read(true)
         .open(&file_path)
         .unwrap();
