@@ -1,4 +1,4 @@
-use std::{os::unix::fs::FileExt, path::PathBuf};
+use std::{io::Write, os::unix::fs::FileExt, path::PathBuf};
 
 pub fn run(file_path: PathBuf) {
     let print_file = |p: &'static str| {
@@ -6,7 +6,7 @@ pub fn run(file_path: PathBuf) {
         println!("{p}: {buff:?}");
     };
 
-    let page_file = std::fs::File::options()
+    let mut page_file = std::fs::File::options()
         .create(true)
         .append(true)
         .read(true)
@@ -28,6 +28,11 @@ pub fn run(file_path: PathBuf) {
     let buf: [u8; 4] = (n + 1).to_be_bytes();
     page_file
         .write_all_at(&buf, 0).unwrap();
+
+    page_file.flush().unwrap();
+    page_file
+        .sync_all().unwrap();
+
     print_file("after second write");
 }
 
